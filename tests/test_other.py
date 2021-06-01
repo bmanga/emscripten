@@ -35,7 +35,7 @@ from tools.shared import CLANG_CC, CLANG_CXX, LLVM_AR, LLVM_DWARFDUMP, EMCMAKE, 
 from runner import RunnerCore, path_from_root, is_slow_test, ensure_dir, disabled, make_executable
 from runner import env_modify, no_mac, no_windows, requires_native_clang, with_env_modify
 from runner import create_file, parameterized, NON_ZERO, node_pthreads, TEST_ROOT, test_file
-from runner import compiler_for, read_file, read_binary
+from runner import compiler_for, read_file, read_binary, EMBUILDER
 from tools import shared, building, utils, deps_info
 import jsrun
 import clang_native
@@ -10593,3 +10593,8 @@ kill -9 $$
   def test_link_only_setting_warning(self):
     err = self.run_process([EMCC, '-sALLOW_MEMORY_GROWTH', '-c', test_file('hello_world.c')], stderr=PIPE).stderr
     self.assertContained("warning: linker setting ignored during compilation: 'ALLOW_MEMORY_GROWTH' [-Wunused-command-line-argument]", err)
+
+  def test_explict_gl_linking(self):
+    # ensure libgl exists
+    self.run_process([EMBUILDER, 'build', 'libgl'])
+    self.run_process([EMCC, test_file('other/test_explict_gl_linking.c'), '-sNO_AUTO_NATIVE_LIBRARIES', '-lGL'])

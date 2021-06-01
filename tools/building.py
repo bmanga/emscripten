@@ -1339,7 +1339,6 @@ def is_wasm_dylib(filename):
 def map_to_js_libs(library_name):
   # Some native libraries are implemented in Emscripten as system side JS libraries
   library_map = {
-    'c': [],
     'dl': [],
     'EGL': ['library_egl.js'],
     'GL': ['library_webgl.js', 'library_html5_webgl.js'],
@@ -1357,7 +1356,6 @@ def map_to_js_libs(library_name):
     'pthread': [],
     'X11': ['library_xlib.js'],
     'SDL': ['library_sdl.js'],
-    'stdc++': [],
     'uuid': ['library_uuid.js'],
     'websocket': ['library_websocket.js']
   }
@@ -1365,12 +1363,15 @@ def map_to_js_libs(library_name):
   if library_name in library_map:
     libs = library_map[library_name]
     logger.debug('Mapping library `%s` to JS libraries: %s' % (library_name, libs))
-    return libs
+    native_library_map = {
+      'GL': 'gl',
+    }
+    return (libs, native_library_map.get(library_name))
 
   if library_name.endswith('.js') and os.path.isfile(path_from_root('src', 'library_' + library_name)):
-    return ['library_' + library_name]
+    return (['library_' + library_name], None)
 
-  return None
+  return (None, None)
 
 
 # Map a linker flag to a settings. This lets a user write -lSDL2 and it will have the same effect as
