@@ -387,6 +387,14 @@ class Library:
     """
     return self.name
 
+  def get_link_flag(self):
+    if self.get_ext() == '.a':
+      base = self.get_base_name()
+      assert base.startswith('lib')
+      return '-l' + base[len('lib'):]
+    else:
+      return self.get_path()
+
   def get_base_name(self):
     """
     Returns the base name of the library file.
@@ -1486,8 +1494,9 @@ def calculate(input_files, forced):
 
     logger.debug('including %s (%s)' % (lib.name, lib.get_filename()))
 
-    need_whole_archive = lib.name in force_include and lib.get_ext() == '.a'
-    libs_to_link.append((lib.get_path(), need_whole_archive))
+    is_archive = lib.get_ext() == '.a'
+    need_whole_archive = lib.name in force_include and is_archive
+    libs_to_link.append((lib.get_link_flag(), need_whole_archive))
 
   if settings.USE_PTHREADS:
     add_library('crtbegin')

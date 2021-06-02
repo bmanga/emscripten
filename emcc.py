@@ -462,7 +462,7 @@ def filter_link_flags(flags, using_lld):
         # lld allows various flags to have either a single -foo or double --foo
         if f.startswith(flag) or f.startswith('-' + flag):
           diagnostics.warning('linkflags', 'ignoring unsupported linker flag: `%s`', f)
-          return False, takes_arg
+          return False, takes_arg and '=' not in f
       return True, False
     else:
       if f in SUPPORTED_LINKER_FLAGS:
@@ -748,11 +748,6 @@ def emsdk_ldflags(user_args):
 
   if '-nostdlib' in user_args:
     return ldflags
-
-  # TODO(sbc): Add system libraries here rather than conditionally including
-  # them via .symbols files.
-  libraries = []
-  ldflags += ['-l' + l for l in libraries]
 
   return ldflags
 
